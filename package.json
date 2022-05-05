@@ -15,7 +15,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "server": "node server"
+    "start": "node server"
   },
   "browserslist": {
     "production": [
