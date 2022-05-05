@@ -2,6 +2,8 @@ const express = require("express");
 const port = 5000;
 const cors = require("cors");
 require("dotenv").config();
+const compression = require("compression");
+const helmet = require("helmet");
 
 const searchRouter = require("./routes/search");
 
@@ -14,6 +16,8 @@ let db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 var app = express();
 
+app.use(compression()); //Compress all routes
+app.use(helmet());
 app.use(cors());
 app.use("/search", searchRouter);
 
