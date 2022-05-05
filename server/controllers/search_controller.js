@@ -25,7 +25,8 @@ exports.getItems = async (req, res) => {
     dbDetails = dbData.map((i) => {
       return {
         ...i._doc,
-        redditInfo: parsedRedditData.find((j) => j._id == i._doc._id),
+        redditInfo: parsedRedditData.find((j) => j._id == i._doc._id)
+          .redditInfo,
       };
     });
     dbIDs = dbDetails.map((i) => i._id);
