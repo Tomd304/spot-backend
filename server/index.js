@@ -1,7 +1,7 @@
 const express = require("express");
-const port = 5000;
 const cors = require("cors");
 require("dotenv").config();
+const port = process.env.PORT;
 const compression = require("compression");
 const helmet = require("helmet");
 
