@@ -6,6 +6,7 @@ const compression = require("compression");
 const helmet = require("helmet");
 
 const searchRouter = require("./routes/search");
+const authRouter = require("./routes/auth");
 
 let mongoose = require("mongoose");
 mongoose.connect(process.env.MONGODB_URI, {
@@ -20,6 +21,7 @@ app.use(compression()); //Compress all routes
 app.use(helmet());
 app.use(cors());
 app.use("/search", searchRouter);
+app.use("/auth", authRouter);
 
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
