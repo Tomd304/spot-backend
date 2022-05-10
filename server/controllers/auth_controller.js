@@ -39,7 +39,7 @@ exports.callback = (req, res) => {
     url: "https://accounts.spotify.com/api/token",
     form: {
       code: code,
-      redirect_uri: "http://localhost:5000/auth/callback",
+      redirect_uri: process.env.REDIRECT_URI,
       grant_type: "authorization_code",
     },
     headers: {
@@ -54,7 +54,9 @@ exports.callback = (req, res) => {
   };
   request.post(authOptions, function (error, response, body) {
     if (!error && response.statusCode === 200) {
-      res.redirect("http://localhost:3000?code=" + body.access_token);
+      res.redirect(
+        "https://hhh-spotify-app.herokuapp.com/?code=" + body.access_token
+      );
     }
   });
 };
