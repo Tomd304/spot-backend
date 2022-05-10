@@ -54,9 +54,7 @@ exports.callback = (req, res) => {
   };
   request.post(authOptions, function (error, response, body) {
     if (!error && response.statusCode === 200) {
-      res.redirect(
-        "https://hhh-spotify-app.herokuapp.com/?code=" + body.access_token
-      );
+      res.redirect(process.env.FRONTEND_URL + "?code=" + body.access_token);
     }
   });
 };
