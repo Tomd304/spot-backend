@@ -5,6 +5,7 @@ let MusicItem = require("../models/music-item");
 
 exports.getItems = async (req, res) => {
   console.time("dbsave");
+  console.log("token received: " + req.headers["authorization"]);
   const access_token = req.headers["authorization"];
   const params = req.query;
 
@@ -298,6 +299,8 @@ const getSpotItems = async (itemList, spotType, requestType, access_token) => {
                 name: res.albums[i].name,
                 url: res.albums[i].external_urls.spotify,
               },
+              id: res.albums[i].id,
+              type: extractSpotType(res.albums[i].external_urls.spotify),
             },
           });
         } catch (err) {
@@ -325,6 +328,8 @@ const getSpotItems = async (itemList, spotType, requestType, access_token) => {
                   name: res.tracks[i].album.name,
                   url: res.tracks[i].album.external_urls.spotify,
                 },
+                id: res.tracks[i].id,
+                type: extractSpotType(res.tracks[i].external_urls.spotify),
               },
             });
           } catch (err) {
