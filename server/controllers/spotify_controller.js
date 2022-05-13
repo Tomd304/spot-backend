@@ -17,6 +17,7 @@ exports.getSavedAlbums = async (req, res) => {
     headers: {
       "Content-Type": "application/json",
       Authorization,
+      resolveWithFullResponse: true,
     },
     qs,
   };
