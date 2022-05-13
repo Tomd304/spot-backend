@@ -1,5 +1,5 @@
 const request = require("request");
-const requestPromise = require("request-promise");
+const axios = require("axios");
 
 exports.getSavedAlbums = async (req, res) => {
   console.log("Getting auth");
@@ -16,28 +16,37 @@ exports.getSavedAlbums = async (req, res) => {
     method: "get",
     headers: {
       "Content-Type": "application/json",
-      Authorization,
-      resolveWithFullResponse: true,
+      Authorization: Authorization,
     },
-    qs,
+    params: qs,
   };
 
-  let response = JSON.parse(await request(options));
-  console.log(response);
-  let total = response.total;
+  let fullResponse;
+  try {
+    fullResponse = await axios(options);
+  } catch (err) {
+    if (err.response.status == 401) {
+      console.log(err.message);
+      res.sendStatus(err.response.status);
+      return;
+    }
+  }
+  let responseData = fullResponse.data.items;
+  console.log(fullResponse.status);
+  let total = fullResponse.data.total;
   console.log("total: " + total);
   qs.offset = 50;
   let repeats = Math.ceil((total - 50) / 50);
-  let ids = response.items.map((i) => i.album.id);
+  let ids = responseData.map((i) => i.album.id);
   if (total > 50) {
     let requests = [];
     for (let i = 1; i <= repeats; i++) {
-      requests.push(requestPromise(options));
+      requests.push(axios(options));
       qs.offset += 50;
     }
 
     const pRes = await Promise.all(requests);
-    const data = pRes.map((i) => JSON.parse(i).items.map((j) => j.album.id));
+    const data = pRes.map((i) => i.data.items.map((j) => j.album.id));
     ids = [...ids, ...data.flat(2)];
   }
   res.json({
@@ -139,13 +148,12 @@ exports.saveAlbum = async (req, res) => {
     headers: {
       Authorization,
     },
-    qs,
+    params: qs,
   };
   console.log("saving");
 
-  request(options, (error, response, body) => {
-    res.sendStatus(response.statusCode);
-  });
+  let fullResponse = await axios(options);
+  res.sendStatus(fullResponse.status);
 };
 
 exports.removeAlbum = async (req, res) => {
@@ -163,9 +171,8 @@ exports.removeAlbum = async (req, res) => {
       "Content-Type": "application/json",
       Authorization,
     },
-    qs,
+    params: qs,
   };
-  request(options, (error, response, body) => {
-    res.sendStatus(response.statusCode);
-  });
+  let fullResponse = await axios(options);
+  res.sendStatus(fullResponse.status);
 };
