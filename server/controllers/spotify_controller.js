@@ -22,7 +22,7 @@ exports.getSavedAlbums = async (req, res) => {
   };
 
   let response = JSON.parse(await requestPromise(options));
-  console.log("json parsed response: " + response);
+  console.log("get saved albums res code: " + response.statusCode);
   let total = response.total;
   console.log("total: " + total);
   qs.offset = 50;
