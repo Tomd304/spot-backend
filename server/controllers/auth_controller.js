@@ -1,4 +1,4 @@
-const request = require("request");
+const axios = require("axios");
 require("dotenv").config();
 
 //generate random string to use as state parameter in spotify api request
@@ -32,12 +32,13 @@ exports.login = (req, res) => {
   );
 };
 
-exports.callback = (req, res) => {
+exports.callback = async (req, res) => {
   var code = req.query.code;
   console.log("Callback Started");
   var authOptions = {
     url: "https://accounts.spotify.com/api/token",
-    form: {
+    method: "post",
+    params: {
       code: code,
       redirect_uri: process.env.REDIRECT_URI,
       grant_type: "authorization_code",
@@ -52,9 +53,15 @@ exports.callback = (req, res) => {
     },
     json: true,
   };
-  request.post(authOptions, function (error, response, body) {
-    if (!error && response.statusCode === 200) {
-      res.redirect(process.env.FRONTEND_URL + "?code=" + body.access_token);
-    }
-  });
+  let fullResponse;
+  try {
+    fullResponse = await axios(authOptions);
+  } catch (err) {
+    console.log(err);
+  }
+  if (fullResponse.status === 200) {
+    res.redirect(
+      process.env.FRONTEND_URL + "?code=" + fullResponse.data.access_token
+    );
+  }
 };

@@ -1,4 +1,3 @@
-const request = require("request");
 const axios = require("axios");
 
 exports.getSavedAlbums = async (req, res) => {

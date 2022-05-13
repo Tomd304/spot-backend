@@ -1,4 +1,4 @@
-const requestPromise = require("request-promise");
+const axios = require("axios");
 const he = require("he");
 const { format: prettyFormat } = require("pretty-format");
 let MusicItem = require("../models/music-item");
@@ -84,7 +84,8 @@ const searchReddit = async (q, t, sort) => {
   };
 
   //Makes call to reddit API
-  const res = JSON.parse(await requestPromise(options));
+  const fullResponse = await axios(options);
+  const res = fullResponse.data;
 
   //Stores array of results
   const data = res.data.children;
@@ -273,8 +274,8 @@ const getSpotItems = async (itemList, spotType, requestType, access_token) => {
         Authorization: access_token,
       },
     };
-    const res = JSON.parse(await requestPromise(options));
-
+    const fullResponse = await axios(options);
+    const res = fullResponse.data;
     //Loops through spotify API res and creates useable object depending on album or track.
     if (spotType == "album") {
       chunk.forEach(function (item, i) {
@@ -359,8 +360,8 @@ const getSpotSearches = async (searchList, access_token) => {
           Authorization: access_token,
         },
       };
-      const res = JSON.parse(await requestPromise(options));
-
+      const fullResponse = await axios(options);
+      const res = fullResponse.data;
       //Spotify API may return multiple results per search. Basic match on reddit title terms to try and specify correct item from list.
       const selectedItem =
         item.requestType == "album"
