@@ -2,8 +2,9 @@ const request = require("request");
 const requestPromise = require("request-promise");
 
 exports.getSavedAlbums = async (req, res) => {
+  console.log("Getting auth");
   let Authorization = req.headers.authorization;
-  console.log(Authorization);
+  console.log("Auth is: " + Authorization);
   let url = "https://api.spotify.com/v1/me/albums";
   let qs = {
     limit: 50,
@@ -21,19 +22,23 @@ exports.getSavedAlbums = async (req, res) => {
   };
 
   let response = JSON.parse(await requestPromise(options));
+  console.log("json parsed response: " + response);
   let total = response.total;
+  console.log("total: " + total);
   qs.offset = 50;
   let repeats = Math.ceil((total - 50) / 50);
   let ids = response.items.map((i) => i.album.id);
-  let requests = [];
-  for (let i = 1; i <= repeats; i++) {
-    requests.push(requestPromise(options));
-    qs.offset += 50;
-  }
+  if (total > 50) {
+    let requests = [];
+    for (let i = 1; i <= repeats; i++) {
+      requests.push(requestPromise(options));
+      qs.offset += 50;
+    }
 
-  const pRes = await Promise.all(requests);
-  const data = pRes.map((i) => JSON.parse(i).items.map((j) => j.album.id));
-  ids = [...ids, ...data.flat(2)];
+    const pRes = await Promise.all(requests);
+    const data = pRes.map((i) => JSON.parse(i).items.map((j) => j.album.id));
+    ids = [...ids, ...data.flat(2)];
+  }
   res.json({
     results: ids,
   });
