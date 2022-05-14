@@ -10,10 +10,17 @@ exports.getItems = async (req, res) => {
   const params = req.query;
 
   //Gets reddit API call results
-  const redditData = await searchReddit(params.q, params.t, params.sort);
+  const redditData = await searchReddit(
+    params.q,
+    params.t,
+    params.sort,
+    params.after,
+    params.before,
+    params.page
+  );
 
   //Parses reddit results into useable data (array of objects)
-  const parsedRedditData = parseRedditData(redditData, params.q);
+  const parsedRedditData = parseRedditData(redditData.data, params.q);
   let redditIDs = parsedRedditData.map((i) => i._id);
   const dbData = await MusicItem.find({
     _id: {
@@ -59,43 +66,59 @@ exports.getItems = async (req, res) => {
   console.log("RETURNING: " + allItems.length + " items");
   res.json({
     results: allItems,
+    after: redditData.after,
+    before: redditData.before,
   });
 };
 
-const searchReddit = async (q, t, sort) => {
+const searchReddit = async (q, t, sort, after, before, page) => {
   // Sets manual search string for Reddit API based on request
+  console.log("REDDIT SEARCH");
+  console.time("redditsearch");
   q =
     q == "album"
       ? '?q=flair_name:"FRESH ALBUM" OR "FRESH ALBUM" OR "FRESH EP" OR "FRESH MIXTAPE"&'
       : '?q=flair_name:"FRESH" OR "FRESH" -flair_name:"FRESH ALBUM" -"FRESH ALBUM" -"FRESH EP" -"FRESH MIXTAPE" -"VIDEO"&';
 
+  const constructURL = (url, q, t, sort, after, before, page) => {
+    const quantity = 50;
+    const count = before !== "before" ? quantity * (page + 1) : page * quantity;
+    url += q;
+    url += "sort=" + sort + "&";
+    url += "t=" + t + "&";
+    url += "restrict_sr=" + "1";
+    url += "&limit=" + quantity;
+    url += "&count=" + count;
+    if (after) {
+      url += "&after=" + after;
+    }
+    if (before) {
+      url += "&before=" + before;
+    }
+
+    return url;
+  };
   let url = "https://www.reddit.com/r/hiphopheads/search.json";
-  url += q;
-  url += "sort=" + sort + "&";
-  url += "t=" + t + "&";
-  url += "restrict_sr=" + "1" + "&";
-  url += "limit=" + "50" + "&";
-  url += "after=" + "after";
 
   const options = {
-    url,
+    url: constructURL(url, q, t, sort, after, before, page),
     method: "get",
     mode: "cors",
   };
 
-  //Makes call to reddit API
   const fullResponse = await axios(options);
   const res = fullResponse.data;
-
+  console.timeEnd("redditsearch");
   //Stores array of results
   const data = res.data.children;
 
-  //Stores after key to be used in next call
-  const after = res.data.after;
-
   //Filters out results with low score / upvotes
-  const filteredData = data.filter((child) => child.data.score > 5);
-  return filteredData;
+  // const filteredData = data.filter((child) => child.data.score > 5);
+  return {
+    data: data,
+    after: res.data.after,
+    before: res.data.before,
+  };
 };
 
 const parseRedditData = (list, requestType) => {
