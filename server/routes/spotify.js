@@ -20,4 +20,6 @@ router.put("/saveTrack", controller.saveTrack);
 
 router.delete("/removeTrack", controller.removeTrack);
 
+router.get("/checkSaved", controller.checkSaved);
+
 module.exports = router;

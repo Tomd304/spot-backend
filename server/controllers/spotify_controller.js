@@ -191,6 +191,56 @@ exports.removeTrack = async (req, res) => {
   let fullResponse = await axios(options);
   res.sendStatus(fullResponse.status);
 };
+
+exports.checkSaved = async (req, res) => {
+  console.log("Getting auth");
+  let Authorization = req.headers.authorization;
+  console.log("Auth is: " + Authorization);
+  let url =
+    req.query.type == "album"
+      ? "https://api.spotify.com/v1/me/albums/contains"
+      : "https://api.spotify.com/v1/me/tracks/contains";
+  let itemsPerRequest = req.query.type == "album" ? 20 : 50;
+  let ids = req.query.ids.split(",");
+  let idsLength = ids.length;
+
+  const options = {
+    url,
+    method: "get",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: Authorization,
+    },
+    params: { ids: [] },
+  };
+  let requests = [];
+
+  if (idsLength < itemsPerRequest) {
+    options.params.ids = ids.join(",");
+    requests.push(axios(options));
+  } else {
+    for (let i = 0; i < Math.ceil(idsLength / itemsPerRequest); i++) {
+      let idChunk = ids.slice(i * itemsPerRequest, (i + 1) * itemsPerRequest);
+      options.params.ids = idChunk.join(",");
+      requests.push(axios(options));
+    }
+  }
+
+  try {
+    const allRes = await Promise.all(requests);
+    const data = allRes.map((i) => i.data).flat();
+    res.json({
+      results: data,
+    });
+  } catch (err) {
+    if (err.response.status == 401) {
+      console.log(err.message);
+      res.sendStatus(err.response.status);
+      return;
+    }
+  }
+};
+
 // exports.getPlaylists = async (req, res) => {
 //   let url = "https://api.spotify.com/v1/me/playlists";
 //   let qs = {
