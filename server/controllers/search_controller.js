@@ -134,7 +134,7 @@ const parseRedditData = (list, requestType) => {
           type: extractSpotType(child.data.url),
         },
       };
-    } else if (child.data.selftext.includes("open.spotify.com")) {
+    } else if (child.data.selftext.includes("open.spotify.com/")) {
       tempObj = {
         type: "spotify",
         spotInfo: {
@@ -257,7 +257,7 @@ const getSpotDetails = async (redditData, requestType, access_token) => {
     strSearchData.length > 0
       ? [
           ...spotifyResults,
-          ...(await getSpotSearches(strSearchData, access_token)),
+          ...(await getSpotSearches(strSearchData, requestType, access_token)),
         ]
       : [...spotifyResults];
 
@@ -304,86 +304,88 @@ const getSpotItems = async (itemList, spotType, requestType, access_token) => {
       for (let c = 0; c < chunk.length; c += 1) {
         //if searching for track, filters out full albums accidentally picked up
         if (requestType == "track" && res.albums[c].total_tracks > 2) {
-          return undefined;
-        }
-        try {
-          // ALBUM TYPE WITH A SINGLE TRACK
-          if (requestType == "track" && res.albums[c].album_type == "single") {
-            console.log("getting single data for: " + res.albums[c].id);
-            let singleID = await getSpotSingleData(res.albums[c].id, options);
-            console.log("single data received for: " + res.albums[c].id);
-            results.push({
-              ...chunk[c],
-              spotInfoFound: true,
-              spotInfo: {
-                name: res.albums[c].name,
-                image: res.albums[c].images[0].url,
-                released: res.albums[c].release_date,
-                url: res.albums[c].external_urls.spotify,
-                artist: {
-                  name: res.albums[c].artists[0].name,
-                  url: res.albums[c].artists[0].external_urls.spotify,
-                },
-                album: {
+        } else
+          try {
+            // ALBUM TYPE WITH A SINGLE TRACK
+            if (
+              requestType == "track" &&
+              res.albums[c].album_type == "single"
+            ) {
+              console.log("getting single data for: " + res.albums[c].id);
+              let singleID = await getSpotSingleData(res.albums[c].id, options);
+              console.log("single data received for: " + res.albums[c].id);
+              results.push({
+                ...chunk[c],
+                spotInfoFound: true,
+                spotInfo: {
                   name: res.albums[c].name,
+                  image: res.albums[c].images[0].url,
+                  released: res.albums[c].release_date,
                   url: res.albums[c].external_urls.spotify,
+                  artist: {
+                    name: res.albums[c].artists[0].name,
+                    url: res.albums[c].artists[0].external_urls.spotify,
+                  },
+                  album: {
+                    name: res.albums[c].name,
+                    url: res.albums[c].external_urls.spotify,
+                  },
+                  id: singleID,
+                  type: extractSpotType(res.albums[c].external_urls.spotify),
                 },
-                id: singleID,
-                type: extractSpotType(res.albums[c].external_urls.spotify),
-              },
-            });
-          } else if (
-            requestType == "track" &&
-            res.albums[c].total_tracks == 1
-          ) {
-            console.log("getting single data");
-            results.push({
-              ...chunk[c],
-              spotInfoFound: true,
-              spotInfo: {
-                name: res.albums[c].name,
-                image: res.albums[c].images[0].url,
-                released: res.albums[c].release_date,
-                url: res.albums[c].external_urls.spotify,
-                artist: {
-                  name: res.albums[c].artists[0].name,
-                  url: res.albums[c].artists[0].external_urls.spotify,
-                },
-                album: {
+              });
+            } else if (
+              requestType == "track" &&
+              res.albums[c].total_tracks == 1
+            ) {
+              console.log("getting single data");
+              results.push({
+                ...chunk[c],
+                spotInfoFound: true,
+                spotInfo: {
                   name: res.albums[c].name,
+                  image: res.albums[c].images[0].url,
+                  released: res.albums[c].release_date,
                   url: res.albums[c].external_urls.spotify,
+                  artist: {
+                    name: res.albums[c].artists[0].name,
+                    url: res.albums[c].artists[0].external_urls.spotify,
+                  },
+                  album: {
+                    name: res.albums[c].name,
+                    url: res.albums[c].external_urls.spotify,
+                  },
+                  id: res.albums[c].tracks.items[0].id,
+                  type: extractSpotType(res.albums[c].external_urls.spotify),
                 },
-                id: res.albums[c].tracks.items[0].id,
-                type: extractSpotType(res.albums[c].external_urls.spotify),
-              },
-            });
-            // ALBUM_TYPE SINGLE
-          } else {
-            results.push({
-              ...chunk[c],
-              spotInfoFound: true,
-              spotInfo: {
-                name: res.albums[c].name,
-                image: res.albums[c].images[0].url,
-                released: res.albums[c].release_date,
-                url: res.albums[c].external_urls.spotify,
-                artist: {
-                  name: res.albums[c].artists[0].name,
-                  url: res.albums[c].artists[0].external_urls.spotify,
-                },
-                album: {
+              });
+              // ALBUM_TYPE SINGLE
+            } else {
+              results.push({
+                ...chunk[c],
+                spotInfoFound: true,
+                spotInfo: {
                   name: res.albums[c].name,
+                  image: res.albums[c].images[0].url,
+                  released: res.albums[c].release_date,
                   url: res.albums[c].external_urls.spotify,
+                  artist: {
+                    name: res.albums[c].artists[0].name,
+                    url: res.albums[c].artists[0].external_urls.spotify,
+                  },
+                  album: {
+                    name: res.albums[c].name,
+                    url: res.albums[c].external_urls.spotify,
+                  },
+                  id: res.albums[c].id,
+                  type: extractSpotType(res.albums[c].external_urls.spotify),
                 },
-                id: res.albums[c].id,
-                type: extractSpotType(res.albums[c].external_urls.spotify),
-              },
-            });
+              });
+            }
+          } catch (err) {
+            console.log("missing details for:");
+            console.table(chunk[c]);
           }
-        } catch (err) {
-          console.log("missing details for:");
-          console.table(chunk[c]);
-        }
       }
     } else if (spotType == "track") {
       chunk.forEach(function (item, i) {
@@ -420,7 +422,7 @@ const getSpotItems = async (itemList, spotType, requestType, access_token) => {
   return results;
 };
 
-const getSpotSearches = async (searchList, access_token) => {
+const getSpotSearches = async (searchList, requestType, access_token) => {
   let spotResults = await Promise.all(
     searchList.map(async (item) => {
       //Searches spotify API using manually parsed artist & item terms extracted from reddit title for each item
@@ -453,26 +455,75 @@ const getSpotSearches = async (searchList, access_token) => {
             );
       if (selectedItem) {
         if (selectedItem.type == "album") {
-          return {
-            ...item,
-            spotInfo: {
-              name: selectedItem.name,
-              image: selectedItem.images[0].url,
-              url: selectedItem.external_urls.spotify,
-              released: selectedItem.release_date,
-              artist: {
-                name: selectedItem.artists[0].name,
-                url: selectedItem.artists[0].external_urls.spotify,
-              },
-              album: {
+          if (requestType == "track" && selectedItem.album_type == "single") {
+            console.log("getting single data for: " + selectedItem.id);
+            let singleID = await getSpotSingleData(selectedItem.id, options);
+            console.log("single data received for: " + selectedItem.id);
+            return {
+              ...item,
+              spotInfoFound: true,
+              spotInfo: {
                 name: selectedItem.name,
+                image: selectedItem.images[0].url,
+                released: selectedItem.release_date,
                 url: selectedItem.external_urls.spotify,
+                artist: {
+                  name: selectedItem.artists[0].name,
+                  url: selectedItem.artists[0].external_urls.spotify,
+                },
+                album: {
+                  name: selectedItem.name,
+                  url: selectedItem.external_urls.spotify,
+                },
+                id: singleID,
+                type: extractSpotType(selectedItem.external_urls.spotify),
               },
-              id: selectedItem.id,
-              type: extractSpotType(selectedItem.external_urls.spotify),
-            },
-            spotInfoFound: true,
-          };
+            };
+          } else if (requestType == "track" && selectedItem.total_tracks == 1) {
+            console.log("getting single data");
+            return {
+              ...item,
+              spotInfoFound: true,
+              spotInfo: {
+                name: selectedItem.name,
+                image: selectedItem.images[0].url,
+                released: selectedItem.release_date,
+                url: selectedItem.external_urls.spotify,
+                artist: {
+                  name: selectedItem.artists[0].name,
+                  url: selectedItem.artists[0].external_urls.spotify,
+                },
+                album: {
+                  name: selectedItem.name,
+                  url: selectedItem.external_urls.spotify,
+                },
+                id: selectedItem.tracks.items[0].id,
+                type: extractSpotType(selectedItem.external_urls.spotify),
+              },
+            };
+            // ALBUM_TYPE SINGLE
+          } else {
+            return {
+              ...item,
+              spotInfo: {
+                name: selectedItem.name,
+                image: selectedItem.images[0].url,
+                url: selectedItem.external_urls.spotify,
+                released: selectedItem.release_date,
+                artist: {
+                  name: selectedItem.artists[0].name,
+                  url: selectedItem.artists[0].external_urls.spotify,
+                },
+                album: {
+                  name: selectedItem.name,
+                  url: selectedItem.external_urls.spotify,
+                },
+                id: selectedItem.id,
+                type: extractSpotType(selectedItem.external_urls.spotify),
+              },
+              spotInfoFound: true,
+            };
+          }
         } else if (selectedItem.type == "track") {
           return {
             ...item,
