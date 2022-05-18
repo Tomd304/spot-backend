@@ -1,9 +1,7 @@
 const axios = require("axios");
 
 exports.checkSaved = async (req, res) => {
-  console.log("Getting auth");
   let Authorization = req.headers.authorization;
-  console.log("Auth is: " + Authorization);
   let url =
     req.query.type == "album"
       ? "https://api.spotify.com/v1/me/albums/contains"
@@ -65,7 +63,6 @@ exports.saveAlbum = async (req, res) => {
     },
     params: qs,
   };
-  console.log("saving");
 
   let fullResponse = await axios(options);
   res.sendStatus(fullResponse.status);
@@ -108,7 +105,6 @@ exports.saveTrack = async (req, res) => {
     },
     params: qs,
   };
-  console.log("saving");
 
   let fullResponse = await axios(options);
   res.sendStatus(fullResponse.status);

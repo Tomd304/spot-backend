@@ -63,7 +63,6 @@ exports.getItems = async (req, res) => {
   );
 
   console.timeEnd("dbsave");
-  console.log("RETURNING: " + allItems.length + " items");
   res.json({
     results: allItems,
     after: redditData.after,
@@ -73,7 +72,6 @@ exports.getItems = async (req, res) => {
 
 const searchReddit = async (q, t, sort, after, before, page) => {
   // Sets manual search string for Reddit API based on request
-  console.log("REDDIT SEARCH");
   console.time("redditsearch");
   q =
     q == "album"
@@ -171,7 +169,6 @@ const extractID = (str) => {
     startIndex = splitStr.indexOf("/") + 1;
   } catch (err) {
     console.log(err);
-    console.log(str);
   }
 
   return splitStr.substring(startIndex, startIndex + 22);
@@ -311,9 +308,7 @@ const getSpotItems = async (itemList, spotType, requestType, access_token) => {
               requestType == "track" &&
               res.albums[c].album_type == "single"
             ) {
-              console.log("getting single data for: " + res.albums[c].id);
               let singleID = await getSpotSingleData(res.albums[c].id, options);
-              console.log("single data received for: " + res.albums[c].id);
               results.push({
                 ...chunk[c],
                 spotInfoFound: true,
@@ -338,7 +333,6 @@ const getSpotItems = async (itemList, spotType, requestType, access_token) => {
               requestType == "track" &&
               res.albums[c].total_tracks == 1
             ) {
-              console.log("getting single data");
               results.push({
                 ...chunk[c],
                 spotInfoFound: true,
@@ -456,9 +450,7 @@ const getSpotSearches = async (searchList, requestType, access_token) => {
       if (selectedItem) {
         if (selectedItem.type == "album") {
           if (requestType == "track" && selectedItem.album_type == "single") {
-            console.log("getting single data for: " + selectedItem.id);
             let singleID = await getSpotSingleData(selectedItem.id, options);
-            console.log("single data received for: " + selectedItem.id);
             return {
               ...item,
               spotInfoFound: true,
@@ -480,7 +472,6 @@ const getSpotSearches = async (searchList, requestType, access_token) => {
               },
             };
           } else if (requestType == "track" && selectedItem.total_tracks == 1) {
-            console.log("getting single data");
             return {
               ...item,
               spotInfoFound: true,
@@ -559,10 +550,8 @@ const getSpotSearches = async (searchList, requestType, access_token) => {
 };
 
 const getSpotSingleData = async (id, reqOptions) => {
-  console.log("inside function for: " + id);
   reqOptions.url = "https://api.spotify.com/v1/albums/" + id + "/tracks";
   let fullResponse = await axios(reqOptions);
-  console.log("got");
   return fullResponse.data.items[0].id;
 };
 

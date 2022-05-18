@@ -16,7 +16,6 @@ exports.login = (req, res) => {
   const scope = "user-library-read user-library-modify";
 
   const state = generateRandomString(16);
-  console.log(process.env.REDIRECT_URI);
   const auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: process.env.CLIENT_ID,
@@ -24,7 +23,6 @@ exports.login = (req, res) => {
     redirect_uri: process.env.REDIRECT_URI,
     state: state,
   });
-  console.log("Login redirecting");
   res.redirect(
     "https://accounts.spotify.com/authorize/?" +
       auth_query_parameters.toString()
@@ -33,7 +31,6 @@ exports.login = (req, res) => {
 
 exports.callback = async (req, res) => {
   const code = req.query.code;
-  console.log("Callback Started");
   const authOptions = {
     url: "https://accounts.spotify.com/api/token",
     method: "post",
