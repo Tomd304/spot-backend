@@ -1,7 +1,6 @@
 const axios = require("axios");
 
 exports.checkSaved = async (req, res) => {
-  let Authorization = req.headers.authorization;
   let url =
     req.query.type == "album"
       ? "https://api.spotify.com/v1/me/albums/contains"
@@ -15,10 +14,11 @@ exports.checkSaved = async (req, res) => {
     method: "get",
     headers: {
       "Content-Type": "application/json",
-      Authorization: Authorization,
+      Authorization: req.headers.authorization,
     },
     params: { ids: [] },
   };
+
   let requests = [];
 
   if (idsLength < itemsPerRequest) {
@@ -48,86 +48,52 @@ exports.checkSaved = async (req, res) => {
 };
 
 exports.saveAlbum = async (req, res) => {
-  let Authorization = req.headers.authorization;
-  const ids = req.query.id;
-  let url = "https://api.spotify.com/v1/me/albums";
-  let qs = {
-    ids,
-  };
-
-  const options = {
-    url,
+  let fullResponse = await axios({
+    url: "https://api.spotify.com/v1/me/albums",
     method: "put",
     headers: {
-      Authorization,
+      Authorization: req.headers.authorization,
     },
-    params: qs,
-  };
-
-  let fullResponse = await axios(options);
+    params: { ids: req.query.id },
+  });
   res.sendStatus(fullResponse.status);
 };
 
 exports.removeAlbum = async (req, res) => {
-  let Authorization = req.headers.authorization;
-  const ids = req.query.id;
-  let url = "https://api.spotify.com/v1/me/albums";
-  let qs = {
-    ids,
-  };
-
-  const options = {
-    url,
+  let fullResponse = await axios({
+    url: "https://api.spotify.com/v1/me/albums",
     method: "delete",
     headers: {
       "Content-Type": "application/json",
-      Authorization,
+      Authorization: req.headers.authorization,
     },
-    params: qs,
-  };
-  let fullResponse = await axios(options);
+    params: { ids: req.query.id },
+  });
   res.sendStatus(fullResponse.status);
 };
 
 exports.saveTrack = async (req, res) => {
-  let Authorization = req.headers.authorization;
-  const ids = req.query.id;
-  let url = "https://api.spotify.com/v1/me/tracks";
-  let qs = {
-    ids,
-  };
-
-  const options = {
-    url,
+  let fullResponse = await axios({
+    url: "https://api.spotify.com/v1/me/tracks",
     method: "put",
     headers: {
-      Authorization,
+      Authorization: req.headers.authorization,
     },
-    params: qs,
-  };
-
-  let fullResponse = await axios(options);
+    params: { ids: req.query.id },
+  });
   res.sendStatus(fullResponse.status);
 };
 
 exports.removeTrack = async (req, res) => {
-  let Authorization = req.headers.authorization;
-  const ids = req.query.id;
-  let url = "https://api.spotify.com/v1/me/tracks";
-  let qs = {
-    ids,
-  };
-
-  const options = {
-    url,
+  let fullResponse = await axios({
+    url: "https://api.spotify.com/v1/me/tracks",
     method: "delete",
     headers: {
       "Content-Type": "application/json",
-      Authorization,
+      Authorization: req.headers.authorization,
     },
-    params: qs,
-  };
-  let fullResponse = await axios(options);
+    params: { ids: req.query.id },
+  });
   res.sendStatus(fullResponse.status);
 };
 
