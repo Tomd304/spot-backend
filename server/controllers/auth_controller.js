@@ -3,22 +3,21 @@ require("dotenv").config();
 
 //generate random string to use as state parameter in spotify api request
 const generateRandomString = (length) => {
-  var text = "";
-  var possible =
+  let text = "";
+  const possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
 };
 
 exports.login = (req, res) => {
-  var scope =
-    "user-library-read user-library-modify user-read-email user-read-private playlist-modify-public";
+  const scope = "user-library-read user-library-modify";
 
-  var state = generateRandomString(16);
+  const state = generateRandomString(16);
   console.log(process.env.REDIRECT_URI);
-  var auth_query_parameters = new URLSearchParams({
+  const auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: process.env.CLIENT_ID,
     scope: scope,
@@ -33,9 +32,9 @@ exports.login = (req, res) => {
 };
 
 exports.callback = async (req, res) => {
-  var code = req.query.code;
+  const code = req.query.code;
   console.log("Callback Started");
-  var authOptions = {
+  const authOptions = {
     url: "https://accounts.spotify.com/api/token",
     method: "post",
     params: {

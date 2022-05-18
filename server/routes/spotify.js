@@ -1,12 +1,18 @@
 const express = require("express");
-var router = express.Router();
-var controller = require("../controllers/spotify_controller");
+const router = express.Router();
+const controller = require("../controllers/spotify_controller");
 
-router.get("/getSavedAlbums", controller.getSavedAlbums);
+router.get("/checkSaved", controller.checkSaved);
 
 router.put("/saveAlbum", controller.saveAlbum);
 
 router.delete("/removeAlbum", controller.removeAlbum);
+
+router.put("/saveTrack", controller.saveTrack);
+
+router.delete("/removeTrack", controller.removeTrack);
+
+module.exports = router;
 
 // router.get("/getPlaylists", controller.getPlaylists);
 
@@ -14,12 +20,6 @@ router.delete("/removeAlbum", controller.removeAlbum);
 
 // router.put("/addPlaylistTracks", controller.addPlaylistTracks);
 
-router.get("/getSavedTracks", controller.getSavedTracks);
+// router.get("/getSavedAlbums", controller.getSavedAlbums);
 
-router.put("/saveTrack", controller.saveTrack);
-
-router.delete("/removeTrack", controller.removeTrack);
-
-router.get("/checkSaved", controller.checkSaved);
-
-module.exports = router;
+// router.get("/getSavedTracks", controller.getSavedTracks);
