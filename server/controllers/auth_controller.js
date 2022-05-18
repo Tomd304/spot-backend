@@ -14,7 +14,6 @@ const generateRandomString = (length) => {
 
 exports.login = (req, res) => {
   const scope = "user-library-read user-library-modify";
-
   const state = generateRandomString(16);
   const auth_query_parameters = new URLSearchParams({
     response_type: "code",
