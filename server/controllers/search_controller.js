@@ -1,6 +1,5 @@
 const axios = require("axios");
 const he = require("he");
-const { format: prettyFormat } = require("pretty-format");
 let MusicItem = require("../models/music-item");
 
 exports.getItems = async (req, res) => {
