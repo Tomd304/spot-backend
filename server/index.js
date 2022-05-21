@@ -18,6 +18,11 @@ let db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 const app = express();
 
+process.on("uncaughtException", function (err) {
+  console.error(err.stack);
+  console.log("Node NOT Exiting...");
+});
+
 app.use(compression()); //Compress all routes
 app.use(helmet());
 app.use(cors());
