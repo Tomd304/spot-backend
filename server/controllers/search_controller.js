@@ -244,7 +244,11 @@ const getSpotItems = async (itemList, spotType, requestType, access_token) => {
         let itemID = "";
         //if searching for track, filters out full albums accidentally picked up
         if (requestType == "track" && res.albums[c].total_tracks > 2) {
-          // DO NOTHING
+          results.push({
+            ...chunk[c],
+            spotInfo: {},
+            spotInfoFound: false,
+          });
         } else
           try {
             // ALBUM TYPE WITH A SINGLE TRACK
