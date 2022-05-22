@@ -3,11 +3,9 @@ const he = require("he");
 let MusicItem = require("../models/music-item");
 
 exports.getItems = async (req, res) => {
-  console.time("dbsave");
-  console.log("token received: " + req.headers["authorization"]);
   const access_token = req.headers["authorization"];
   const params = req.query;
-
+  console.log(access_token + " getting items");
   //Gets reddit API call results
   const redditData = await getRedditInfo(params);
 
@@ -63,7 +61,6 @@ exports.getItems = async (req, res) => {
       return allItems.find((item) => item.spotInfo.url === url);
     }
   );
-  console.timeEnd("dbsave");
   res.json({
     results: allItems,
     after: redditData.after,
@@ -73,7 +70,6 @@ exports.getItems = async (req, res) => {
 
 const getRedditInfo = async (params) => {
   // Sets manual search string for Reddit API based on request
-  console.time("redditsearch");
   let qString =
     params.q == "album"
       ? '?q=flair_name:"FRESH ALBUM" OR "FRESH ALBUM" OR "FRESH EP" OR "FRESH MIXTAPE"&'
@@ -101,7 +97,6 @@ const getRedditInfo = async (params) => {
     mode: "cors",
   });
   const res = fullResponse.data;
-  console.timeEnd("redditsearch");
 
   return {
     data: res.data.children,
@@ -212,7 +207,6 @@ const getSpotDetails = async (data, requestType, access_token) => {
 
 const getSpotItems = async (itemList, spotType, requestType, access_token) => {
   let results = [];
-  console.log("getting spot items");
   //API allows reqeuests of 20 albums at once, and 50 tracks at once
   const chunkSize = requestType == "album" ? 20 : 50;
 
