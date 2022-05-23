@@ -75,7 +75,9 @@ const getRedditInfo = async (params) => {
       ? '?q=flair_name:"FRESH ALBUM" OR "FRESH ALBUM" OR "FRESH EP" OR "FRESH MIXTAPE"&'
       : '?q=flair_name:"FRESH" OR "FRESH" -flair_name:"FRESH ALBUM" -"FRESH ALBUM" -"FRESH EP" -"FRESH MIXTAPE" -"VIDEO"&';
 
-  const constructURL = (url, params) => {
+  const constructURL = (params) => {
+    console.log(params.subreddit);
+    let url = "https://www.reddit.com/" + params.subreddit + "/search.json";
     const quantity = 50;
     const count =
       params.before !== "before"
@@ -89,10 +91,7 @@ const getRedditInfo = async (params) => {
   };
 
   const fullResponse = await axios({
-    url: constructURL(
-      "https://www.reddit.com/r/hiphopheads/search.json",
-      params
-    ),
+    url: constructURL(params),
     method: "get",
     mode: "cors",
   });
